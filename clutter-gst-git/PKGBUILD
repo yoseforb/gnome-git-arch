@@ -1,0 +1,41 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=clutter-gst
+pkgname=$_pkgname-git
+pkgver=2.0.2.91.g9940577
+pkgrel=1
+pkgdesc="GStreamer bindings for clutter"
+arch=('i686' 'x86_64')
+url="http://www.clutter-project.org/"
+license=('LGPL')
+depends=('clutter' 'gst-plugins-base-libs' 'libxdamage' 'gst-plugins-bad')
+makedepends=('gobject-introspection' 'git')
+options=('!libtool')
+conflicts=('clutter-gst')
+replaces=('clutter-gst')
+provides=('clutter-gst' 'clutter-gst=2.0.5')
+source=('git://git.gnome.org/clutter-gst')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+
+  git checkout -b clutter-gst-2.0 origin/clutter-gst-2.0
+
+  ./autogen.sh --prefix=/usr --sysconfdir=/etc --enable-gtk-doc
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package(){
+  cd "$srcdir/$_pkgname"
+  make DESTDIR=${pkgdir} install
+}

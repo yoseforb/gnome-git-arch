@@ -1,0 +1,37 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=clutter
+pkgname=$_pkgname-git
+pkgver=1.15.90.6.g90b696a
+pkgrel=1
+pkgdesc="A GObject based library for creating fast, visually rich graphical user interfaces"
+arch=('i686' 'x86_64')
+url="http://clutter-project.org/"
+options=('!libtool')
+license=('LGPL')
+depends=('cogl>=1.15.1' 'mesa' 'json-glib' 'atk' 'libxi' 'wayland')
+makedepends=('gobject-introspection' 'mesa')
+conflicts=('clutter')
+replaces=('clutter')
+provides=('clutter' 'clutter=1.15.91')
+source=('git://git.gnome.org/clutter#branch=clutter-1.16')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  ./autogen.sh --prefix=/usr --enable-introspection --enable-gtk-doc \
+    --enable-wayland-backend --enable-wayland-compositor=yes \
+    --enable-x11-backend --enable-gdk-backend \
+    --enable-egl-backend --enable-evdev-input
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  make DESTDIR="$pkgdir" install
+}

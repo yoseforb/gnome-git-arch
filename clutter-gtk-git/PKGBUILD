@@ -1,0 +1,34 @@
+# Maintainer: Yosef Or Boczko <yoseforv@gmail.com>
+
+_pkgname=clutter-gtk
+pkgname=$_pkgname-git
+pkgver=1.4.4.8.g532aa93
+pkgrel=1
+pkgdesc="GTK clutter widget"
+arch=('i686' 'x86_64')
+url="http://clutter-project.org/"
+options=('!libtool')
+license=('LGPL')
+depends=("clutter>=1.15.1" 'gtk3')
+makedepends=('git' 'gobject-introspection')
+conflicts=('clutter-gtk')
+replaces=('clutter-gtk')
+provides=('clutter-gtk' 'clutter-gtk=1.5.1')
+source=('git://git.gnome.org/clutter-gtk')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  ./autogen.sh --prefix=/usr --enable-gtk-doc
+  make
+}
+
+package(){
+  cd "$srcdir/$_pkgname"
+  make DESTDIR=${pkgdir} install
+}
