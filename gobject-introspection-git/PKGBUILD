@@ -1,0 +1,41 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=gobject-introspection
+pkgname=$_pkgname-git
+pkgver=GOBJECT_INTROSPECTION_1_37_6
+pkgrel=1
+pkgdesc="Introspection system for GObject-based libraries"
+url="https://live.gnome.org/GObjectIntrospection"
+arch=('x86_64' 'i686')
+license=('LGPL' 'GPL')
+depends=('glib2' 'python2' 'python2-mako')
+makedepends=('cairo')
+options=('!libtool')
+replaces=('gobject-introspection')
+provides=('gobject-introspection' 'gobject-introspection=1.37.6')
+conflicts=('gobject-introspection')
+source=('git://git.gnome.org/gobject-introspection')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  
+  PYTHON=/usr/bin/python2 ./autogen.sh --prefix=/usr \
+      --disable-static --enable-doctool --enable-gtk-doc
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  
+  make DESTDIR="$pkgdir" install
+  sed -i '1s|#!/usr/bin/env python$|&2|' \
+    "$pkgdir"/usr/lib/gobject-introspection/giscanner/*.py
+    
+  rm -rf "$srcdir/$_gitname-build"
+}
