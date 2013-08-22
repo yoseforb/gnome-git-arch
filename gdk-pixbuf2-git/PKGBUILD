@@ -2,7 +2,7 @@
 
 _pkgname=gdk-pixbuf2
 pkgname=$_pkgname-git
-pkgver=2.29.3.7.gf49e0b3
+pkgver=2.29.3.8.g4ba6e74
 pkgrel=1
 _realver=2.29.4
 pkgdesc="An image loading library"
