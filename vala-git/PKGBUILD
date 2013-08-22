@@ -1,0 +1,34 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=vala
+pkgname=$_pkgname-git
+pkgver=0.21.1.11.g93a8e08
+pkgrel=1
+pkgdesc="Compiler for the GObject type system"
+arch=('i686' 'x86_64')
+url="http://live.gnome.org/Vala"
+license=('LGPL')
+depends=('glib2')
+makedepends=('git' 'libxslt')
+provides=("vala=0.21.1")
+conflicts=('vala' 'vala-devel')
+options=('!libtool')
+source=('git://git.gnome.org/vala')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+
+  ./autogen.sh --prefix=/usr --enable-vapigen
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  make DESTDIR="${pkgdir}/" install
+}
