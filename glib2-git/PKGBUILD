@@ -1,0 +1,74 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgbase=glib2
+pkgbase=$_pkgbase-git
+pkgname=(glib2-git glib2-docs-git)
+_realver=2.37.7
+pkgver=2.37.6.1.ga436358
+pkgrel=1
+pkgdesc="Common C routines used by GTK+ and other libs"
+url="http://www.gtk.org/"
+arch=('i686' 'x86_64')
+makedepends=('git' 'pkg-config' 'python2' 'libxslt' 'docbook-xml' 'pcre' 'libffi' 'elfutils')
+source=('git://git.gnome.org/glib'
+        'revert-warn-glib-compile-schemas.patch')
+sha256sums=('SKIP'
+            '049240975cd2f1c88fbe7deb28af14d4ec7d2640495f7ca8980d873bb710cc97')
+
+pkgver() {
+  cd "$srcdir/glib"
+  git describe --always | sed 's|-|.|g'
+}
+
+prepare() {
+  cd "$srcdir/glib"
+  patch -Rp1 -i ../revert-warn-glib-compile-schemas.patch
+}
+
+build() {
+  cd "$srcdir/glib"
+
+  PYTHON=/usr/bin/python2 ./autogen.sh --prefix=/usr --libdir=/usr/lib \
+      --sysconfdir=/etc \
+      --with-pcre=system \
+      --disable-fam \
+      --enable-gtk-doc
+  make
+}
+
+package_glib2-git() {
+  depends=('pcre' 'libffi')
+  optdepends=('python2: for gdbus-codegen and gtester-report'
+              'elfutils: gresource inspection tool')
+  options=('!docs' '!libtool' '!emptydirs')
+  license=('LGPL')
+  conflicts=('glib2')
+  replaces=('glib2')
+  provides=('glib2' "glib2=$_realver")
+
+  cd "$srcdir/glib"
+  make completiondir=/usr/share/bash-completion/completions DESTDIR="$pkgdir" install
+
+  for _i in "$pkgdir/usr/share/bash-completion/completions/"*; do
+      chmod -x "$_i"
+  done
+
+  # Our gdb does not ship the required python modules, so remove it
+  rm -rf "$pkgdir/usr/share/gdb/"
+}
+
+package_glib2-docs-git() {
+  pkgdesc="Documentation for glib2"
+  conflicts=('gobject2-docs' 'glib2-docs')
+  replaces=('gobject2-docs' 'glib2-docs')
+  provides=('glib2-docs' "glib2-docs=$_realver")
+  license=('custom')
+  options=('docs' '!emptydirs')
+  
+  cd "$srcdir/glib/docs"
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/glib2-docs"
+  install -m644 reference/COPYING "${pkgdir}/usr/share/licenses/glib2-docs/"
+
+  rm -rf "${pkgdir}/usr/share/man"
+}
