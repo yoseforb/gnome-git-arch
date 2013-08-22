@@ -1,0 +1,37 @@
+# $Id: PKGBUILD 187802 2013-06-05 21:30:32Z heftig $
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+_pkgname=gtk-doc
+pkgname=$_pkgname-git
+pkgver=GTK.DOC.1.18.117.g5bf7cdc
+pkgrel=1
+pkgdesc="Documentation tool for public library API"
+arch=('any')
+license=('GPL' 'FDL')
+depends=('docbook-xsl' 'gnome-doc-utils' 'perl' 'source-highlight')
+makedepends=('pkgconfig' 'jade' 'itstool' 'dblatex')
+optdepends=('jade: SGML support'
+            'dblatex: PDF support')
+url="http://www.gtk.org/gtk-doc/"
+conflicts=('gtk-doc')
+replaces=('gtk-doc')
+provides=('gtk-doc')
+source=('git://git.gnome.org/gtk-doc')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  git describe | sed 's/^v//;s/-/./g;s/_/./g;'
+}
+
+build() {
+  cd "${srcdir}/${_pkgname}"
+  export PYTHON=/usr/bin/python2
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}"
+  make DESTDIR="${pkgdir}" install
+}
