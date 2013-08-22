@@ -1,0 +1,36 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=gnome-themes-standard
+pkgname=$_pkgname-git
+pkgver=3.9.90.6.g7064661
+pkgrel=1
+pkgdesc="Default themes for the GNOME desktop"
+arch=('i686' 'x86_64')
+url="http://www.gnome.org"
+license=('GPL2')
+depends=('cantarell-fonts' 'ttf-dejavu' 'gtk3' 'gtk-engines' 'librsvg' "gtk2>=2.24.15" "gtk3>=3.9.3")
+makedepends=('intltool')
+groups=('gnome')
+replaces=('gnome-themes')
+provides=('gnome-themes-standard')
+conflicts=('gnome-themes' 'gnome-themes-standard' 'gnome-themes-standard=3.9.90')
+options=('!libtool')
+source=('git://git.gnome.org/gnome-themes-standard')
+sha256sums=('SKIP')
+
+pkgver()
+{
+  cd "$srcdir/$_pkgname"
+  git describe | sed 's/^v//;s/-/./g;s/_/./g;'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  make DESTDIR="${pkgdir}" install
+}
