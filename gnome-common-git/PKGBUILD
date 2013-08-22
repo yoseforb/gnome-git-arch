@@ -1,0 +1,31 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=gnome-common
+pkgname=$_pkgname-git
+pkgver=3.7.4.9.gd048397
+pkgrel=1
+pkgdesc="Common development macros for GNOME"
+arch=(any)
+license=('GPL')
+url="http://www.gnome.org"
+conflicts=('gnome-common')
+replaces=('gnome-common')
+provides=('gnome-common' 'gnome-common=3.7.4')
+source=('git://git.gnome.org/gnome-common')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe | sed 's/^v//;s/-/./g;s/_/./g;'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  make DESTDIR="$pkgdir" install
+}
