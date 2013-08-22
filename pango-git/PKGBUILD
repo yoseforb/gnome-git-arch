@@ -1,0 +1,44 @@
+# Maintainer: Yosef Or Boczko <yoseforb@gmail.com>
+
+_pkgname=pango
+pkgname=$_pkgname-git
+pkgver=1.35.2
+pkgrel=1
+pkgdesc="A library for layout and rendering of text"
+arch=('i686' 'x86_64')
+url="http://gnome.org/"
+license=('LGPL')
+depends=('glib2' 'cairo' 'libxft' 'libthai' 'freetype2'
+		  'harfbuzz>=0.9.9' 'fontconfig')
+makedepends=('git' 'gobject-introspection' 'libxt' 'gtk-doc')
+options=('!libtool' '!emptydirs')
+replace=('pango')
+provides=("$_pkgname")
+conflicts=("$_pkgname" "$_pkgname=1.35.2")
+install=$_pkgname.install
+source=(git://git.gnome.org/pango)
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "$srcdir/$_pkgname"
+  
+  ./autogen.sh --prefix=/usr --sysconfdir=/etc \
+    --localstatedir=/var --with-included-modules=basic-fc \
+    --enable-gtk-doc
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/etc/pango"
+  
+  rm -rf "$srcdir/$_gitname-build"
+}
+
